@@ -5,11 +5,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+
+import net.zemberek.erisim.Zemberek;
+import net.zemberek.tr.yapi.TurkiyeTurkcesi;
+import net.zemberek.yapi.Kelime;
 
 
 
@@ -19,20 +25,47 @@ import java.util.Set;
  *
  */
 public class Meanings {
-	private static String turkishCh = "[^a-zA-ZğüşıöçĞÜŞİÖÇîâûÎÂÛ ]";
-
-	private static String POS = "isim";
-	private static String specWord = "ortak adı";
+	private String alpha = "a-zA-Z";
+	private String turkSpecific = "ğüşıöçĞÜŞİÖÇîâûÎÂÛ";
+	private String allChars = alpha + turkSpecific;
 	
+	private String nonTurkCh = "[^" + allChars + " ]";
+
+	
+	private String POS = "isim";
+	private String specWord = "\'da";
+	
+	public static Zemberek z = new Zemberek(new TurkiyeTurkcesi());
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
-		
+//		System.out.println("î".toUpperCase());
 		new Meanings().readFile();
 		
-
+//		System.out.println(Arrays.toString(z.asciiCozumle("yengeç")));
+//
+//		Kelime[] k = z.kelimeCozumle("çözümle");
+//		System.out.println(Arrays.toString(k));
 	}
+	public String upperOrLowerTurkChars(boolean upper) {
+		StringBuilder sb = new StringBuilder("");
+		for (int i = 0; i < turkSpecific.length(); i++) {
+			char c = turkSpecific.charAt(i);
+			if (upper ? Character.isUpperCase(c) : Character.isLowerCase(c))
+				sb.append(c);
+		}
+		return new String(sb);
+	}
+	
 
+	public List<String> tokenizer(String s) {
+		s = s.replaceAll("([" + allChars + "])\'[" + allChars + "]+", "$1");
+		s = s.replaceAll("([\\.&&([^(A-Z" + upperOrLowerTurkChars(true) + "[a-z" + upperOrLowerTurkChars(false) + "])]\\.)],:;!\\?\\))", " $1");
+		s = s.replaceAll("(\\()", "$1 ");
+		return Arrays.asList(s.split(" "));
+	}
+	
+	
 	public void readFile() {
 		Map<String, Set<String>> m = extractMeanings("C:\\Users\\cemri\\Downloads\\Turkce TDK Sozluk\\Turkce TDK Sozluk\\Sozluk");
 		
@@ -76,7 +109,7 @@ public class Meanings {
 											line.indexOf("</name>"));
 									if (vocWord.contains("(I"))
 										vocWord = vocWord.substring(0, vocWord.indexOf("("));
-									vocWord = vocWord.trim().replaceAll(turkishCh, "");
+									vocWord = vocWord.trim().replaceAll(nonTurkCh, "");
 
 								}
 								if (line.contains("<lex_class>")) {
