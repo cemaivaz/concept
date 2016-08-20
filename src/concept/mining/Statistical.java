@@ -25,7 +25,7 @@ public class Statistical {
 		Map<K, V> tmp = new LinkedHashMap<K, V>();
 		Collections.sort(tmpList, new Comparator<Map.Entry<K, V>>() {
 			public int compare(Map.Entry<K, V> m1, Map.Entry<K, V> m2) {
-				return ((asc == true) ? 1 : -1) * m1.getValue().compareTo(m2.getValue());
+				return (asc == true ? 1 : -1) * m1.getValue().compareTo(m2.getValue());
 			}
 		});
 		for (Map.Entry<K, V> me: tmpList) {

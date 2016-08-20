@@ -3,6 +3,8 @@
  */
 package concept.mining;
 
+import java.util.List;
+
 /**
  * @author cemri
  *
@@ -17,7 +19,7 @@ public class Rules {
 
 	}
 
-	public String hypernym(String word) {
+	public String hypernym(List<String> word) {
 		return ""; //null döndürebilir, take it into account
 	}
 }

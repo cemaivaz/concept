@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -15,7 +16,6 @@ import java.util.Set;
 
 import net.zemberek.erisim.Zemberek;
 import net.zemberek.tr.yapi.TurkiyeTurkcesi;
-import net.zemberek.yapi.Kelime;
 
 
 
@@ -35,12 +35,14 @@ public class Meanings {
 	private String POS = "isim";
 	private String specWord = "\'da";
 	
+	private int contextSize = 30;
+	
 	public static Zemberek z = new Zemberek(new TurkiyeTurkcesi());
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
 //		System.out.println("î".toUpperCase());
-		new Meanings().readFile();
+//		new Meanings().readFile();
 		
 //		System.out.println(Arrays.toString(z.asciiCozumle("yengeç")));
 //
@@ -86,6 +88,27 @@ public class Meanings {
 		}
 		inp.close();
 		System.exit(1);
+	}
+	public List<String> disamb(List<List<String>> means, int i, List<String> doc) {
+		int min = Math.max(0, i - contextSize / 2);
+		int max = Math.min(doc.size(), i + contextSize / 2);
+		
+		List<String> subL = doc.subList(min, max);
+
+		double maxMeanVal = Double.MIN_VALUE;
+		List<String> maxMean = means.get(0);
+		
+		for (List<String> mean: means) {
+			List<String> common = new ArrayList<String>(subL);
+			common.retainAll(mean);
+			double commonVal = (double) common.size() / mean.size();
+			if (commonVal > maxMeanVal) {
+				maxMeanVal = commonVal;
+				maxMean = mean;
+			}
+		}
+		
+		return maxMean;
 	}
 
 	public Map<String, Set<String>> extractMeanings(String fileName) {
