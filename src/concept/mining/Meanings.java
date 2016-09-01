@@ -16,6 +16,7 @@ import java.util.Set;
 
 import net.zemberek.erisim.Zemberek;
 import net.zemberek.tr.yapi.TurkiyeTurkcesi;
+import net.zemberek.yapi.Kelime;
 
 
 
@@ -31,6 +32,7 @@ public class Meanings {
 	
 	private String nonTurkCh = "[^" + allChars + " ]";
 
+	private String splitter = ",";
 	
 	private String POS = "isim";
 	private String specWord = "\'da";
@@ -38,6 +40,7 @@ public class Meanings {
 	private int contextSize = 30;
 	
 	public static Zemberek z = new Zemberek(new TurkiyeTurkcesi());
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
@@ -46,8 +49,8 @@ public class Meanings {
 		
 //		System.out.println(Arrays.toString(z.asciiCozumle("yengeç")));
 //
-//		Kelime[] k = z.kelimeCozumle("çözümle");
-//		System.out.println(Arrays.toString(k));
+		Kelime[] k = z.asciiCozumle("çözümle");
+		System.out.println(Arrays.toString(k));
 	}
 	public String upperOrLowerTurkChars(boolean upper) {
 		StringBuilder sb = new StringBuilder("");
@@ -62,10 +65,21 @@ public class Meanings {
 
 	public List<String> tokenizer(String s) {
 		s = s.replaceAll("([" + allChars + "])\'[" + allChars + "]+", "$1");
-		s = s.replaceAll("([\\.&&([^(A-Z" + upperOrLowerTurkChars(true) + "[a-z" + upperOrLowerTurkChars(false) + "])]\\.)],:;!\\?\\))", " $1");
+		s = s.replaceAll("([\\.&&([^(A-Z" + upperOrLowerTurkChars(true) + "[a-z" + upperOrLowerTurkChars(false) + "])]\\.)]:;!\\?\\))", " $1");
 		s = s.replaceAll("(\\()", "$1 ");
-		return Arrays.asList(s.split(" "));
+		return Arrays.asList(s.split(splitter));
 	}
+//	public List<String> parser(List<String> l) {
+//		for (String block: l) {
+//			String[] arr = block.split(" ");
+//			for (int i = 0; i < arr.length; i++) {
+//				Kelime[] k = z.asciiCozumle(arr[i]);
+//				System.out.println(Arrays.toString(k));
+//			}
+//			
+//		}
+//		
+//	}
 	
 	
 	public void readFile() {
