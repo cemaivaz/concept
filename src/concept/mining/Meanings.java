@@ -27,6 +27,7 @@ import net.zemberek.yapi.Kelime;
  */
 public class Meanings {
 	//a tentative comment made
+	//a second one is made for trial purpose
 	private String alpha = "a-zA-Z";
 	private String turkSpecific = "ğüşıöçĞÜŞİÖÇîâûÎÂÛ";
 	private String allChars = alpha + turkSpecific;
