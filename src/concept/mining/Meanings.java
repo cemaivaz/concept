@@ -26,6 +26,7 @@ import net.zemberek.yapi.Kelime;
  *
  */
 public class Meanings {
+	//a tentative comment made
 	private String alpha = "a-zA-Z";
 	private String turkSpecific = "ğüşıöçĞÜŞİÖÇîâûÎÂÛ";
 	private String allChars = alpha + turkSpecific;
@@ -45,7 +46,7 @@ public class Meanings {
 		// TODO Auto-generated method stub
 
 //		System.out.println("î".toUpperCase());
-//		new Meanings().readFile();
+		new Meanings().readFile();
 		
 //		System.out.println(Arrays.toString(z.asciiCozumle("yengeç")));
 //
