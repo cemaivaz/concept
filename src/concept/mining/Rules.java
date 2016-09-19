@@ -1,11 +1,21 @@
 /**
- * 
+ * TODO
+ * TDK - Disamb.: Finally, the word with morphemes are given in <...>
+ * ..'ın, ..'da gibi apostrophe'dan sonra gelenleri ayıklamak zorundasın
+ * ISIM_BELIRTME_I, ISIM_TAMLAMA
+ * Her kelime için ROOT+[..] gibi bir pattern belirle, içindeki white space'leri ele
+ * xx'lar complexity'yi altı kat arttırıyor, bunu handle etmeye çalış
+ * bir + FİİL + NOUN? discard it
+ * [ [ Kok: anla, FIIL ]  Ekler: FIIL_YETERSIZLIK_E + FIIL_OLUMSUZLUK_ME + FIIL_GECMISZAMAN_DI + FIIL_KISI_BEN,
+ * [ [ Kok: yengeç, OZEL ] ,  [ Kok: yengeç, ISIM ] ]
  */
 package concept.mining;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author cemri
@@ -16,6 +26,7 @@ public class Rules {
 	/**
 	 * @param args
 	 */
+	
 	private String word;
 	private List<String> meaning;
 
@@ -70,7 +81,7 @@ public class Rules {
 		if (lastBlock.size() >= 2) {
 			int birInd = -1;
 			List<String> birRemain = new ArrayList<String>();
-			for (int i = lastBlock.size() - 1; i >= 0; i--) {
+			for (int i = lastBlock.size() - 2; i >= 0; i--) {
 				if (lastBlock.get(i).substring(0, 4).equals("bir[")) {
 					birRemain = lastBlock.subList(i + 1, lastBlock.size());
 					birInd = i;
@@ -82,8 +93,11 @@ public class Rules {
 				String secBirRemain = birRemain.get(1);
 				
 				//orman ağaç -> DÜZELT!
-				return firstBirRemain.substring(0, firstBirRemain.indexOf("[")) + " "
-						+ secBirRemain.substring(0, secBirRemain.indexOf("["));
+				return //firstBirRemain.substring(firstBirRemain.lastIndexOf("<") + 1, firstBirRemain.length() - 1) + secBirRemain.substring(firstBirRemain.lastIndexOf("<") + 1, secBirRemain.length() - 1);
+						secBirRemain.substring(0, secBirRemain.indexOf("["));
+				
+//						firstBirRemain.substring(0, firstBirRemain.indexOf("[")) + " "
+//						+ secBirRemain.substring(0, secBirRemain.indexOf("["));
 			}
 //			String penUltWord = lastBlock.get(lastBlock.size() - 2);
 //			String barePenUlt = penUltWord.substring(0, penUltWord.indexOf("["));

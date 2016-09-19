@@ -7,12 +7,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 import net.zemberek.erisim.Zemberek;
 import net.zemberek.tr.yapi.TurkiyeTurkcesi;
@@ -26,8 +28,9 @@ import net.zemberek.yapi.Kelime;
  *
  */
 public class Meanings {
-	//a tentative comment made
-	//a second one is made for trial purpose
+	
+	private Map<String, Integer> mostFreq = new HashMap<String, Integer>();
+
 	private String alpha = "a-zA-Z";
 	private String turkSpecific = "ğüşıöçĞÜŞİÖÇîâûÎÂÛ";
 	private String allChars = alpha + turkSpecific;
@@ -43,16 +46,31 @@ public class Meanings {
 	
 	public static Zemberek z = new Zemberek(new TurkiyeTurkcesi());
 	
+	private String rootSplStr = ": ";
+	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
 //		System.out.println("î".toUpperCase());
-		new Meanings().readFile();
+//		new Meanings().readFile();
 		
 //		System.out.println(Arrays.toString(z.asciiCozumle("yengeç")));
 //
-		Kelime[] k = z.asciiCozumle("çözümle");
+		System.out.println(new Meanings().mostFreq("C:\\Users\\cemri\\Downloads\\Turkce TDK Sozluk\\Turkce TDK Sozluk\\Sozluk", 10));
+		
+		Map<String, List<String>> kk = new HashMap<>();
+		List<String> l = Arrays.asList("cem", "alin", "seyit");
+		kk.put("c", l);
+		List<String> l2 = Arrays.asList("christina", "john");
+		kk.put("j", l2);
+		Collection<List<String>> cc = kk.values();
+		System.out.println(cc);
+		
+//		System.out.println(new Meanings().wordTokenizer("Merhaba, bugün burada olduğum için çok mutlu; hatta "
+//				+ "Dünya'nın (bu Dünya'da) en mutlu insanıyım diyebilirim (happy)."));
+		Kelime[] k = z.asciiCozumle("birinden");
 		System.out.println(Arrays.toString(k));
+		
 	}
 	public String upperOrLowerTurkChars(boolean upper) {
 		StringBuilder sb = new StringBuilder("");
@@ -63,7 +81,11 @@ public class Meanings {
 		}
 		return new String(sb);
 	}
-	
+	public List<String> wordTokenizer(String s) {
+		s = s.toLowerCase().replaceAll("[\\(\\)\\.,;:!\\?\\'\"]", "");
+		s = s.replaceAll("([" + allChars + "])\'[" + allChars + "]+", "$1");
+		return Arrays.asList(s.split(" "));
+	}
 
 	public List<String> tokenizer(String s) {
 		s = s.replaceAll("([" + allChars + "])\'[" + allChars + "]+", "$1");
@@ -85,7 +107,7 @@ public class Meanings {
 	
 	
 	public void readFile() {
-		Map<String, Set<String>> m = extractMeanings("C:\\Users\\cemri\\Downloads\\Turkce TDK Sozluk\\Turkce TDK Sozluk\\Sozluk");
+		Map<String, List<String>> m = extractMeanings("C:\\Users\\cemri\\Downloads\\Turkce TDK Sozluk\\Turkce TDK Sozluk\\Sozluk");
 		
 		Scanner inp = new Scanner(System.in);
 		while (true) {
@@ -106,6 +128,9 @@ public class Meanings {
 		System.exit(1);
 	}
 	public List<String> disamb(List<List<String>> means, int i, List<String> doc) {
+		if (means.size() == 0) {
+			return means.get(0);
+		}
 		int min = Math.max(0, i - contextSize / 2);
 		int max = Math.min(doc.size(), i + contextSize / 2);
 		
@@ -127,11 +152,34 @@ public class Meanings {
 		return maxMean;
 	}
 
-	public Map<String, Set<String>> extractMeanings(String fileName) {
+	public List<String> mostFreq(String fileName, int perc) {
+		if (perc <= 0 || perc >= 100)
+			throw new IllegalArgumentException();
+		Collection<List<String>> allMeans = extractMeanings(fileName).values();
+		
+		for (List<String> l: allMeans) {
+			for (String s: l) {
+				for (String word: wordTokenizer(s)) {
+					String rootNotSplt = Arrays.toString(z.asciiCozumle(word)).split(",")[0];
+					String root = rootNotSplt.substring(rootNotSplt.indexOf(rootSplStr) + rootSplStr.length(), rootNotSplt.length());
+					root = root.trim();
+					int cnt = mostFreq.containsKey(root)? mostFreq.get(root): 0;
+					mostFreq.put(root, ++cnt);
+				}
+			}
+		}
+		List<String> mostFreqWords = new ArrayList<String>(Statistical.sort(mostFreq, false).keySet());
+		
+		return mostFreqWords.subList(0, mostFreqWords.size() * perc / 100);//, mostFreqWords.size());
+	}
+	
+
+	
+	public Map<String, List<String>> extractMeanings(String fileName) {
 		File dir = new File(fileName);
 
-		Set<String> meanings = new LinkedHashSet<String>();
-		Map<String, Set<String>> allMeanings = new HashMap<String, Set<String>>();
+		List<String> meanings = new ArrayList<String>();
+		Map<String, List<String>> allMeanings = new HashMap<String, List<String>>();
 		for (File subDir: dir.listFiles()) {
 			System.out.println(subDir.getAbsolutePath());
 			if (subDir.isDirectory())
@@ -173,7 +221,7 @@ public class Meanings {
 								}
 								if (line.contains("</entry>")) {
 									allMeanings.put(vocWord, meanings);
-									meanings = new LinkedHashSet<String>();
+									meanings = new ArrayList<String>();
 
 									vocWord = "";
 								}
